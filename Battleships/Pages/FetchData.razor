@@ -1,6 +1,11 @@
 ﻿@page "/fetchdata"
 
 @using Battleships.Data
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas.Canvas2D;
+@using Blazor.Extensions.Canvas.WebGL;
+
 @inject WeatherForecastService ForecastService
 
 <h1>Weather forecast</h1>
@@ -34,6 +39,9 @@ else
             }
         </tbody>
     </table>
+
+    <button class="btn btn-primary" @onclick="Cyk">Click me</button>
+    <BECanvas Width="300" Height="400" @ref="_canvasReference"></BECanvas>
 }
 
 @code {
@@ -42,5 +50,29 @@ else
     protected override async Task OnInitializedAsync()
     {
         forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+    }
+
+    private Canvas2DContext _context;
+
+    public BECanvasComponent _canvasReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(this._context == null)
+        {
+            this._context = await this._canvasReference.CreateCanvas2DAsync();
+            await this._context.SetFillStyleAsync("green");
+
+            await this._context.FillRectAsync(10, 100, 100, 100);
+
+            await this._context.SetFontAsync("48px serif");
+            await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+        }
+    }
+
+    async Task Cyk()
+    {
+        await this._context.SetFillStyleAsync("yellow");
+        await this._context.FillRectAsync(10, 100, 100, 100);
     }
 }
