@@ -5,12 +5,9 @@
 @using Blazor.Extensions;
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using Blazor.Extensions.Canvas.WebGL;
+@using Battleships.Models;
 
 @inject WeatherForecastService ForecastService
-
-<h1>Weather forecast</h1>
-
-<p>This component demonstrates fetching data from a service.</p>
 
 @if (forecasts == null)
 {
@@ -18,7 +15,7 @@
 }
 else
 {
-    <table class="table">
+    @*<table class="table">
         <thead>
             <tr>
                 <th>Date</th>
@@ -38,10 +35,10 @@ else
                 </tr>
             }
         </tbody>
-    </table>
+    </table>*@
 
     <button class="btn btn-primary" @onclick="Cyk">Click me</button>
-    <BECanvas Width="300" Height="400" @ref="_canvasReference"></BECanvas>
+    <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
 }
 
 @code {
@@ -63,11 +60,36 @@ else
             this._context = await this._canvasReference.CreateCanvas2DAsync();
             await this._context.SetFillStyleAsync("green");
 
-            await this._context.FillRectAsync(10, 100, 100, 100);
+            await this._context.FillRectAsync(0, 0, 300, 400);
 
             await this._context.SetFontAsync("48px serif");
             await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+
+            await DrawBoard(10, 10);
         }
+    }
+
+    private async Task DrawBoard(int gridWidth, int gridHeight)
+    {
+        var board = new Board(10, 10);
+        await board.InitializeAsync(_canvasReference.Width, _canvasReference.Height);
+        await board.DrawAsync(_context);
+
+        //var cellWidth =  / gridWidth;
+        //var cellHeight = _canvasReference.Height / gridHeight;
+
+        //for(var col = 0; col < gridWidth; col++)
+        //{
+        //    for(var row = 0; row < gridHeight; row++)
+        //    {
+        //        await this._context.SetFillStyleAsync("red");
+        //        await this._context.FillRectAsync(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+        //    }
+        //}
+
+
+        //await this._context.SetFillStyleAsync("yellow");
+        //await this._context.FillRectAsync(10, 100, 100, 100);
     }
 
     async Task Cyk()
