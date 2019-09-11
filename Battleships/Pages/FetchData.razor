@@ -6,8 +6,10 @@
 @using Blazor.Extensions.Canvas.Canvas2D;
 @using Blazor.Extensions.Canvas.WebGL;
 @using Battleships.Models;
+@using Battleships.Drawing;
 
 @inject WeatherForecastService ForecastService
+@inject IJSRuntime JsRuntime
 
 @if (forecasts == null)
 {
@@ -16,32 +18,40 @@
 else
 {
     @*<table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            }
-        </tbody>
-    </table>*@
+            </thead>
+            <tbody>
+                @foreach (var forecast in forecasts)
+                {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+                }
+            </tbody>
+        </table>*@
 
-    <button class="btn btn-primary" @onclick="Cyk">Click me</button>
-    <BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
+    <button class="btn btn-primary">Click me</button>
+
+    <div style="width:@_widthStr; height:@_heightStr;" @onclick="Cyk">
+        <BECanvas Width="_width" Height="_height" @ref="_canvasReference"></BECanvas>
+    </div>
 }
 
 @code {
+    int _width = 500;
+    int _height = 500;
+    string _widthStr => $"{_width}px";
+    string _heightStr => $"{_height}px";
+
     WeatherForecast[] forecasts;
 
     protected override async Task OnInitializedAsync()
@@ -49,21 +59,16 @@ else
         forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
     }
 
-    private Canvas2DContext _context;
-
-    public BECanvasComponent _canvasReference;
+    private Canvas2DContext _canvas;
+    private BECanvasComponent _canvasReference;
+    private DrawingContext _drawingContext;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(this._context == null)
+        if (this._canvas == null)
         {
-            this._context = await this._canvasReference.CreateCanvas2DAsync();
-            await this._context.SetFillStyleAsync("green");
-
-            await this._context.FillRectAsync(0, 0, 300, 400);
-
-            await this._context.SetFontAsync("48px serif");
-            await this._context.StrokeTextAsync("Hello Blazor!!!", 10, 100);
+            this._canvas = await this._canvasReference.CreateCanvas2DAsync();
+            _drawingContext = new DrawingContext(this._canvas, null);
 
             await DrawBoard(10, 10);
         }
@@ -73,28 +78,13 @@ else
     {
         var board = new Board(10, 10);
         await board.InitializeAsync(_canvasReference.Width, _canvasReference.Height);
-        await board.DrawAsync(_context);
-
-        //var cellWidth =  / gridWidth;
-        //var cellHeight = _canvasReference.Height / gridHeight;
-
-        //for(var col = 0; col < gridWidth; col++)
-        //{
-        //    for(var row = 0; row < gridHeight; row++)
-        //    {
-        //        await this._context.SetFillStyleAsync("red");
-        //        await this._context.FillRectAsync(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
-        //    }
-        //}
-
-
-        //await this._context.SetFillStyleAsync("yellow");
-        //await this._context.FillRectAsync(10, 100, 100, 100);
+        await board.DrawAsync(_drawingContext);
     }
 
-    async Task Cyk()
+    async Task Cyk(MouseEventArgs e)
     {
-        await this._context.SetFillStyleAsync("yellow");
-        await this._context.FillRectAsync(10, 100, 100, 100);
+        var text = await JsRuntime.InvokeAsync<string>("xxx", "bbb");
+        //await this._context.SetFillStyleAsync("yellow");
+        //await this._context.FillRectAsync(10, 100, 100, 100);
     }
 }

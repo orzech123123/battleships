@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Blazor.Extensions.Canvas.Canvas2D;
+using Battleships.Drawing;
 
 namespace Battleships.Models
 {
@@ -18,7 +18,7 @@ namespace Battleships.Models
             _cells = new Cell[cols, rows];
         }
 
-        public async Task DrawAsync(Canvas2DContext context)
+        public async Task DrawAsync(DrawingContext context)
         {
             await IterateThroughCellsAsync(async (int col, int row) =>
             {

@@ -5,6 +5,7 @@
         Empty,
         Mishit,
         Hit,
-        Sunk
+        Sunk,
+        Ship
     }
 }

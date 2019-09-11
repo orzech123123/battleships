@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Blazor.Extensions.Canvas.Canvas2D;
+using Battleships.Drawing;
 
 namespace Battleships.Models
 {
@@ -20,10 +20,10 @@ namespace Battleships.Models
 
         public CellState State { get; set; } = CellState.Empty;
 
-        public async Task DrawAsync(Canvas2DContext context)
+        public async Task DrawAsync(DrawingContext context)
         {
-            await context.SetFillStyleAsync("red");
-            await context.FillRectAsync(_x * _width, _y * _height, _width, _height);
+            await context.Canvas.SetFillStyleAsync("red");
+            await context.Canvas.FillRectAsync(_x * _width, _y * _height, _width, _height);
         }
     }
 }
