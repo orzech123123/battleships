@@ -20,7 +20,7 @@ namespace Battleships.Models
 
         public async Task DrawAsync(DrawingContext context)
         {
-            await IterateThroughCellsAsync(async (int col, int row) =>
+            await IterateThroughGrid(async (int col, int row) =>
             {
                 await _cells[col, row].DrawAsync(context);
             });
@@ -31,13 +31,13 @@ namespace Battleships.Models
             var cellWidth = canvasWidth / _cols;
             var cellHeight = canvasHeight / _rows;
 
-            await IterateThroughCellsAsync(async (int col, int row) =>
+            await IterateThroughGrid(async (int col, int row) =>
             {
                 _cells[col, row] = new Cell(col, row, cellWidth, cellHeight);
             });
         }
 
-        private async Task IterateThroughCellsAsync(Func<int, int, Task> action)
+        private async Task IterateThroughGrid(Func<int, int, Task> action)
         {
             for (var col = 0; col < _cols; col++)
             {

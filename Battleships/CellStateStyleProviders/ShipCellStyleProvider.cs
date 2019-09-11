@@ -1,8 +1,8 @@
 ﻿using Battleships.Models;
 
-namespace Battleships.CellStateStylePersisters
+namespace Battleships.CellStateStyleProviders
 {
-    public class ShipCellStylePersister : ICellStateStylePersister
+    public class ShipCellStyleProvider : ICellStateStyleProvider
     {
         public CellState State => CellState.Ship;
 

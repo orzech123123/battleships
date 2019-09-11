@@ -1,4 +1,4 @@
-﻿using Battleships.CellStateStylePersisters;
+﻿using Battleships.CellStateStyleProviders;
 using Blazor.Extensions.Canvas.Canvas2D;
 using System.Collections.Generic;
 
@@ -6,13 +6,13 @@ namespace Battleships.Drawing
 {
     public class DrawingContext
     {
-        public DrawingContext(Canvas2DContext canvas, IEnumerable<ICellStateStylePersister> cellStylePersisters)
+        public DrawingContext(Canvas2DContext canvas, IEnumerable<ICellStateStyleProvider> cellStyleProviders)
         {
             Canvas = canvas;
-            CellStylePersisters = cellStylePersisters;
+            CellStyleProviders = cellStyleProviders;
         }
 
         public Canvas2DContext Canvas { get; private set; }
-        public IEnumerable<ICellStateStylePersister> CellStylePersisters { get; private set; }
+        public IEnumerable<ICellStateStyleProvider> CellStyleProviders { get; private set; }
     }
 }

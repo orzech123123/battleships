@@ -1,8 +1,8 @@
 ﻿using Battleships.Models;
 
-namespace Battleships.CellStateStylePersisters
+namespace Battleships.CellStateStyleProviders
 {
-    public class MishitCellStylePersister : ICellStateStylePersister
+    public class MishitCellStyleProvider : ICellStateStyleProvider
     {
         public CellState State => CellState.Mishit;
 

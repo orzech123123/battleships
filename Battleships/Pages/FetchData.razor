@@ -7,9 +7,11 @@
 @using Blazor.Extensions.Canvas.WebGL;
 @using Battleships.Models;
 @using Battleships.Drawing;
+@using Battleships.CellStateStyleProviders;
 
 @inject WeatherForecastService ForecastService
 @inject IJSRuntime JsRuntime
+@inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
 
 @if (forecasts == null)
 {
@@ -41,7 +43,7 @@ else
 
     <button class="btn btn-primary">Click me</button>
 
-    <div style="width:@_widthStr; height:@_heightStr;" @onclick="Cyk">
+    <div style="width:@_widthStr; height:@_heightStr;" @onclick="Cyk" @ref="_divCanvasReference">
         <BECanvas Width="_width" Height="_height" @ref="_canvasReference"></BECanvas>
     </div>
 }
@@ -61,14 +63,15 @@ else
 
     private Canvas2DContext _canvas;
     private BECanvasComponent _canvasReference;
+    private ElementReference _divCanvasReference;
     private DrawingContext _drawingContext;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (this._canvas == null)
         {
-            this._canvas = await this._canvasReference.CreateCanvas2DAsync();
-            _drawingContext = new DrawingContext(this._canvas, null);
+            this._canvas = await this._canvasReference.CreateCanvas2DAsync(); //cannot be done in OnInitializedAsync because _canvasReference is null yet
+            _drawingContext = new DrawingContext(this._canvas, CellStateStyleProviders);
 
             await DrawBoard(10, 10);
         }

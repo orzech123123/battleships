@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Battleships.Data;
+using Battleships.CellStateStyleProviders;
 
 namespace Battleships
 {
@@ -28,6 +29,11 @@ namespace Battleships
             services.AddRazorPages();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
             services.AddSingleton<WeatherForecastService>();
+            services.AddTransient<ICellStateStyleProvider, EmptyCellStyleProvider>();
+            services.AddTransient<ICellStateStyleProvider, ShipCellStyleProvider>();
+            services.AddTransient<ICellStateStyleProvider, HitCellStyleProvider>();
+            services.AddTransient<ICellStateStyleProvider, MishitCellStyleProvider>();
+            services.AddTransient<ICellStateStyleProvider, SunkCellStyleProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
