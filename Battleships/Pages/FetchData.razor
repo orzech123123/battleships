@@ -8,6 +8,7 @@
 @using Battleships.Models;
 @using Battleships.Drawing;
 @using Battleships.CellStateStyleProviders;
+@using System.Text.Json;
 
 @inject WeatherForecastService ForecastService
 @inject IJSRuntime JsRuntime
@@ -43,18 +44,18 @@ else
 
     <button class="btn btn-primary">Click me</button>
 
-    <div style="width:@_widthStr; height:@_heightStr;" @onclick="Cyk" @ref="_divCanvasReference">
+    <div style="width:@_widthStr; height:@_heightStr;" @onclick="OnCanvasClick" @ref="_divCanvasReference">
         <BECanvas Width="_width" Height="_height" @ref="_canvasReference"></BECanvas>
     </div>
 }
 
 @code {
-    int _width = 500;
-    int _height = 500;
-    string _widthStr => $"{_width}px";
-    string _heightStr => $"{_height}px";
+        int _width = 500;
+        int _height = 500;
+        string _widthStr => $"{_width}px";
+        string _heightStr => $"{_height}px";
 
-    WeatherForecast[] forecasts;
+        WeatherForecast[] forecasts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,10 +85,20 @@ else
         await board.DrawAsync(_drawingContext);
     }
 
-    async Task Cyk(MouseEventArgs e)
+    async Task OnCanvasClick(MouseEventArgs e)
     {
-        var text = await JsRuntime.InvokeAsync<string>("xxx", "bbb");
-        //await this._context.SetFillStyleAsync("yellow");
-        //await this._context.FillRectAsync(10, 100, 100, 100);
+        var coordinatesStr = await JsRuntime.InvokeAsync<string>("getClickCoordinates", _divCanvasReference);
+        var coordinatesArray = coordinatesStr
+            .Split(new[] { '|' })
+            .Select(part => int.Parse(part))
+            .ToArray();
+
+        var coordinates = new
+        {
+            x = e.ClientX - coordinatesArray[0],
+            y = e.ClientY - coordinatesArray[1],
+        };
+
+        //TODO process click event...
     }
 }
