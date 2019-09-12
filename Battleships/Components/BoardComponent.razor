@@ -4,57 +4,53 @@
 @using Battleships.Drawing;
 @using Battleships.CellStateStyleProviders;
 @using Microsoft.AspNetCore.Components;
-@using  System.Linq;
+@using System.Linq;
+@using System.Threading
 
 @inject IJSRuntime JsRuntime
 @inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
 
 <div style="width:@WidthStr; height:@HeightStr; margin: 10px" @onclick="OnCanvasClick" @ref="_divCanvasReference">
-    <BECanvas Width="_width" Height="_height" @ref="_canvasReference"></BECanvas>
+    <BECanvas Width="Width" Height="Height" @ref="_canvasReference"></BECanvas>
 </div>
 
 @code {
-    private int _width = 500;
-    private int _height = 500;
-    private string WidthStr => $"{_width}px";
-    private string HeightStr => $"{_height}px";
+    public Board Board { get; private set; }
 
-    private Canvas2DContext _canvas;
+    private const int Width = 500;
+    private const int Height = 500;
+    private string WidthStr => $"{Width}px";
+    private string HeightStr => $"{Height}px";
+
     private BECanvasComponent _canvasReference;
     private ElementReference _divCanvasReference;
     private DrawingContext _drawingContext;
-    private Board _board;
-    private readonly IList<Action<int, int>> _listeners = new List<Action<int, int>>();
+    private readonly IList<Func<int, int, Task>> _listeners = new List<Func<int, int, Task>>();
 
     protected override async Task OnInitializedAsync()
     {
+        Board = new Board(10, 10, Width, Height);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _canvas = await _canvasReference.CreateCanvas2DAsync(); //cannot be done in OnInitializedAsync because _canvasReference is null yet
-            _drawingContext = new DrawingContext(_canvas, CellStateStyleProviders);
-            
-            _board = new Board(10, 10, (int)_canvasReference.Width, (int)_canvasReference.Height);
+            var canvas = await _canvasReference.CreateCanvas2DAsync(); //cannot be done in OnInitializedAsync because _canvasReference is null yet
+            _drawingContext = new DrawingContext(canvas, CellStateStyleProviders);
 
-            await _board.DrawAsync(_drawingContext);
+            await Board.DrawAsync(_drawingContext);
         }
     }
-
-    public void AddOnClickListener(Action<int, int> listener)
+    
+    public async Task RedrawAsync()
     {
-        _listeners.Add(listener);
+        await Board.DrawAsync(_drawingContext);
     }
 
-    public async Task Test()
+    public void AddOnClickListener(Func<int, int, Task> listener)
     {
-        _board.SetCellState(3, 3, CellState.Mishit);
-
-        await _canvas.SetFillStyleAsync("white");
-        await _canvas.FillRectAsync(0, 0, _width, _height);
-        await _board.DrawAsync(_drawingContext);
+        _listeners.Add(listener);
     }
 
     private async Task OnCanvasClick(MouseEventArgs e)
@@ -73,13 +69,13 @@
 
         var gridCoordinates = new
         {
-            x = (int)coordinates.x / _board.CellWidth,
-            y = (int)coordinates.y / _board.CellHeight
+            x = (int)coordinates.x / Board.CellWidth,
+            y = (int)coordinates.y / Board.CellHeight
         };
 
         foreach (var listener in _listeners)
         {
-            listener(gridCoordinates.x, gridCoordinates.y);
+            await listener(gridCoordinates.x, gridCoordinates.y);
         };
     }
 }

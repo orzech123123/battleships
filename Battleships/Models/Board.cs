@@ -9,16 +9,16 @@ namespace Battleships.Models
     {
         public int CellWidth { get; }
         public int CellHeight { get; }
-        private readonly int _cols;
-        private readonly int _rows;
+        public int Cols { get; }
+        public int Rows { get; }
         private Cell[,] _cells;
 
         public Board(int cols, int rows, int canvasWidth, int canvasHeight)
         {
-            _cols = cols;
-            _rows = rows;
-            CellWidth = canvasWidth / _cols;
-            CellHeight = canvasHeight / _rows;
+            Cols = cols;
+            Rows = rows;
+            CellWidth = canvasWidth / Cols;
+            CellHeight = canvasHeight / Rows;
 
             InitializeCells();
         }
@@ -28,17 +28,27 @@ namespace Battleships.Models
             //FAST DRAWING - PREVIOUSLY THERE WHERE FIRED "await DrawAsync().." METHODS FOR EACH CELL ONE BY ONE ASYNCHORNOUSLY
             //AND CELLS APPEARED ON CANVAS VERY SLOWLY, ONE BY ONE (WHOLE GRID RENDERED ABOUT 4 SECONDS)
             var drawingTasks = new List<Task>();
-            IterateThroughCellsAsync((int col, int row) =>
+            IterateThroughCells((col, row) =>
             {
-                drawingTasks.Add(_cells[col, row].DrawAsync(context));
+                drawingTasks.Add(_cells[col, row].DrawAsync(context)); 
                 drawingTasks.Add(DrawGridAsync(context, col, row));
             });
             await Task.WhenAll(drawingTasks.ToArray());
         }
 
+        public void Clear()
+        {
+            InitializeCells();
+        }
+
         public void SetCellState(int col, int row, CellState state)
         {
             _cells[col, row].State = state;
+        }
+
+        public CellState GetCellState(int col, int row)
+        {
+            return _cells[col, row].State;
         }
 
         private async Task DrawGridAsync(DrawingContext context, int col, int row)
@@ -52,19 +62,19 @@ namespace Battleships.Models
 
         private void InitializeCells()
         {
-            _cells = new Cell[_cols, _rows];
+            _cells = new Cell[Cols, Rows];
 
-            IterateThroughCellsAsync((int col, int row) =>
+            IterateThroughCells((col, row) =>
             {
                 _cells[col, row] = new Cell(col, row, CellWidth, CellHeight);
             });
         }
 
-        private void IterateThroughCellsAsync(Action<int, int> action)
+        private void IterateThroughCells(Action<int, int> action)
         {
-            for (var col = 0; col < _cols; col++)
+            for (var col = 0; col < Cols; col++)
             {
-                for (var row = 0; row < _rows; row++)
+                for (var row = 0; row < Rows; row++)
                 {
                     action(col, row);
                 }

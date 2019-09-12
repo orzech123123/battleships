@@ -1,20 +1,72 @@
-﻿@using Battleships.Components;
+﻿@using Battleships.Factories
+@using Battleships.Models
+
+@inject ShipFactory ShipFactory;
 
 Battleships
 
-<BoardComponent @ref="_enemyBoardComponent" />
 <BoardComponent @ref="_playerBoardComponent" />
+<BoardComponent @ref="_enemyBoardComponent" />
 
 @code
 {
     private BoardComponent _enemyBoardComponent;
     private BoardComponent _playerBoardComponent;
-    
+
+    private readonly IList<Ship> _enemyShips = new List<Ship>();
+    private readonly IList<Ship> _playerShips = new List<Ship>();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _playerBoardComponent.AddOnClickListener(async (int col, int row) =>
+        if (firstRender)
         {
-            await _enemyBoardComponent.Test(); //testing abilities of Blazor
-        });
+            InitializeGame();
+
+            _enemyBoardComponent.AddOnClickListener(ProcessOnEnemyBoardClick);
+        }
+    }
+
+    private void InitializeGame()
+    {
+        _playerBoardComponent.Board.Clear();
+        _enemyBoardComponent.Board.Clear();
+
+        RandomizeShips(_playerShips, _playerBoardComponent.Board);
+        RandomizeShips(_enemyShips, _enemyBoardComponent.Board);
+
+        foreach (var playerShip in _playerShips)
+        {
+            foreach (var playerShipSegment in playerShip.Segments)
+            {
+                _playerBoardComponent.Board.SetCellState(playerShipSegment.X, playerShipSegment.Y, CellState.Ship);
+            }
+        }
+    }
+
+    private void RandomizeShips(ICollection<Ship> ships, Board board)
+    {
+        ships.Clear();
+
+        var battleship = ShipFactory.CreateRandomShip(5, ships, board.Cols, board.Rows);
+        ships.Add(battleship);
+        var destroyer1 = ShipFactory.CreateRandomShip(4, ships, board.Cols, board.Rows);
+        ships.Add(destroyer1);
+        var destroyer2 = ShipFactory.CreateRandomShip(4, ships, board.Cols, board.Rows);
+        ships.Add(destroyer2);
+    }
+
+    private async Task ProcessOnEnemyBoardClick(int col, int row)
+    {
+        var cellState = _enemyBoardComponent.Board.GetCellState(col, row);
+
+        if (cellState != CellState.Empty)
+        {
+            return;
+        }
+
+        //TESTING...
+        _enemyBoardComponent.Board.SetCellState(3, 3, CellState.Sunk);
+        await _enemyBoardComponent.RedrawAsync();
+        //TODO gameplay processing
     }
 }

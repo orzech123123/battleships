@@ -10,10 +10,10 @@ namespace Battleships.Models
     {
         private readonly int _x;
         private readonly int _y;
-        private readonly long _width;
-        private readonly long _height;
+        private readonly int _width;
+        private readonly int _height;
 
-        public Cell(int x, int y, long width, long height)
+        public Cell(int x, int y, int width, int height)
         {
             _x = x;
             _y = y;
