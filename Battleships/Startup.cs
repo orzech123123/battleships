@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Battleships.Data;
 using Battleships.CellStateStyleProviders;
 
 namespace Battleships
@@ -28,7 +27,7 @@ namespace Battleships
         {
             services.AddRazorPages();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
-            services.AddSingleton<WeatherForecastService>();
+
             services.AddTransient<ICellStateStyleProvider, EmptyCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, ShipCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, HitCellStyleProvider>();

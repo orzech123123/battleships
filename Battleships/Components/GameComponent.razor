@@ -1,4 +1,17 @@
-﻿Battleships
+﻿@using Battleships.Components;
 
-<BoardComponent />
-<BoardComponent />
+Battleships
+
+<BoardComponent @ref="_enemyBoardComponent" />
+<BoardComponent @ref="_playerBoardComponent" />
+
+@code
+{
+    private BoardComponent _enemyBoardComponent;
+    private BoardComponent _playerBoardComponent;
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+    }
+}
