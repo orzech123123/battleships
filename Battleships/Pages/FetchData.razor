@@ -4,12 +4,12 @@
 @using Battleships.Models;
 @using Battleships.Drawing;
 @using Battleships.CellStateStyleProviders;
-@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components;
 
 @inject IJSRuntime JsRuntime
 @inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
 
-<div style="width:@WidthStr; height:@HeightStr;" @onclick="OnCanvasClick" @ref="_divCanvasReference">
+<div style="width:@WidthStr; height:@HeightStr; margin: 10px" @onclick="OnCanvasClick" @ref="_divCanvasReference">
     <BECanvas Width="_width" Height="_height" @ref="_canvasReference"></BECanvas>
 </div>
 
