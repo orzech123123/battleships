@@ -50,12 +50,12 @@ else
 }
 
 @code {
-        int _width = 500;
-        int _height = 500;
-        string _widthStr => $"{_width}px";
-        string _heightStr => $"{_height}px";
+    int _width = 500;
+    int _height = 500;
+    string _widthStr => $"{_width}px";
+    string _heightStr => $"{_height}px";
 
-        WeatherForecast[] forecasts;
+    WeatherForecast[] forecasts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,8 +80,7 @@ else
 
     private async Task DrawBoard(int gridWidth, int gridHeight)
     {
-        var board = new Board(10, 10);
-        await board.InitializeAsync(_canvasReference.Width, _canvasReference.Height);
+        var board = new Board(10, 10, _canvasReference.Width, _canvasReference.Height);
         await board.DrawAsync(_drawingContext);
     }
 

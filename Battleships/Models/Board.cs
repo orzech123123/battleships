@@ -6,38 +6,51 @@ namespace Battleships.Models
 {
     public class Board : IDrawable
     {
+        private readonly long _cellWidth;
+        private readonly long _cellHeight;
         private readonly int _cols;
         private readonly int _rows;
         public Cell[,] _cells;
 
-        public Board(int cols, int rows)
+        public Board(int cols, int rows, long canvasWidth, long canvasHeight)
         {
             _cols = cols;
             _rows = rows;
+            _cellWidth = canvasWidth / _cols;
+            _cellHeight = canvasHeight / _rows;
 
-            _cells = new Cell[cols, rows];
+            InitializeCells();
         }
 
         public async Task DrawAsync(DrawingContext context)
         {
-            await IterateThroughGrid(async (int col, int row) =>
+            await IterateThroughCellsAsync(async (int col, int row) =>
             {
                 await _cells[col, row].DrawAsync(context);
+                await DrawGridAsync(context, col, row);
             });
         }
 
-        public async Task InitializeAsync(long canvasWidth, long canvasHeight)
+        private async Task DrawGridAsync(DrawingContext context, int col, int row)
         {
-            var cellWidth = canvasWidth / _cols;
-            var cellHeight = canvasHeight / _rows;
+            await context.Canvas.BeginPathAsync();
+            await context.Canvas.SetLineWidthAsync(1f);
+            await context.Canvas.SetStrokeStyleAsync("black");
+            await context.Canvas.RectAsync(col * _cellWidth, row * _cellHeight, _cellWidth, _cellHeight);
+            await context.Canvas.StrokeAsync();
+        }
 
-            await IterateThroughGrid(async (int col, int row) =>
+        private void InitializeCells()
+        {
+            _cells = new Cell[_cols, _rows];
+
+            IterateThroughCellsAsync(async (int col, int row) =>
             {
-                _cells[col, row] = new Cell(col, row, cellWidth, cellHeight);
+                _cells[col, row] = new Cell(col, row, _cellWidth, _cellHeight);
             });
         }
 
-        private async Task IterateThroughGrid(Func<int, int, Task> action)
+        private async Task IterateThroughCellsAsync(Func<int, int, Task> action)
         {
             for (var col = 0; col < _cols; col++)
             {

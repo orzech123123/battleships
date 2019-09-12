@@ -1,5 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Battleships.Drawing;
+using System.Linq;
+using System;
+using Battleships.CellStateStyleProviders;
 
 namespace Battleships.Models
 {
@@ -22,7 +25,16 @@ namespace Battleships.Models
 
         public async Task DrawAsync(DrawingContext context)
         {
-            await context.Canvas.SetFillStyleAsync("red");
+            var styleProvider = context
+                .CellStyleProviders
+                .SingleOrDefault(provider => provider.State == State);
+
+            if(styleProvider == null)
+            {
+                throw new InvalidOperationException($"There was no {nameof(ICellStateStyleProvider)} found for state {State}");
+            }
+
+            await context.Canvas.SetFillStyleAsync(styleProvider.Style);
             await context.Canvas.FillRectAsync(_x * _width, _y * _height, _width, _height);
         }
     }
