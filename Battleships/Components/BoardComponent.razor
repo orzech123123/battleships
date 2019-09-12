@@ -4,6 +4,7 @@
 @using Battleships.Drawing;
 @using Battleships.CellStateStyleProviders;
 @using Microsoft.AspNetCore.Components;
+@using  System.Linq;
 
 @inject IJSRuntime JsRuntime
 @inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
@@ -22,31 +23,43 @@
     private BECanvasComponent _canvasReference;
     private ElementReference _divCanvasReference;
     private DrawingContext _drawingContext;
-    
+    private Board _board;
+    private readonly IList<Action<int, int>> _listeners = new List<Action<int, int>>();
+
     protected override async Task OnInitializedAsync()
     {
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (_canvas == null)
+        if (firstRender)
         {
             _canvas = await _canvasReference.CreateCanvas2DAsync(); //cannot be done in OnInitializedAsync because _canvasReference is null yet
             _drawingContext = new DrawingContext(_canvas, CellStateStyleProviders);
+            
+            _board = new Board(10, 10, (int)_canvasReference.Width, (int)_canvasReference.Height);
 
-            await DrawBoard();
+            await _board.DrawAsync(_drawingContext);
         }
     }
 
-    private async Task DrawBoard()
+    public void AddOnClickListener(Action<int, int> listener)
     {
-        var board = new Board(10, 10, _canvasReference.Width, _canvasReference.Height);
-        await board.DrawAsync(_drawingContext);
+        _listeners.Add(listener);
+    }
+
+    public async Task Test()
+    {
+        _board.SetCellState(3, 3, CellState.Mishit);
+
+        await _canvas.SetFillStyleAsync("white");
+        await _canvas.FillRectAsync(0, 0, _width, _height);
+        await _board.DrawAsync(_drawingContext);
     }
 
     private async Task OnCanvasClick(MouseEventArgs e)
     {
-        var coordinatesStr = await JsRuntime.InvokeAsync<string>("getClickCoordinates", _divCanvasReference);
+        var coordinatesStr = await JsRuntime.InvokeAsync<string>("getElementCoordinates", _divCanvasReference);
         var coordinatesArray = coordinatesStr
             .Split(new[] { '|' })
             .Select(int.Parse)
@@ -58,6 +71,15 @@
             y = e.ClientY - coordinatesArray[1],
         };
 
-        //TODO process click event...
+        var gridCoordinates = new
+        {
+            x = (int)coordinates.x / _board.CellWidth,
+            y = (int)coordinates.y / _board.CellHeight
+        };
+
+        foreach (var listener in _listeners)
+        {
+            listener(gridCoordinates.x, gridCoordinates.y);
+        };
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Battleships.Drawing;
 
@@ -6,29 +7,38 @@ namespace Battleships.Models
 {
     public class Board : IDrawable
     {
-        private readonly long _cellWidth;
-        private readonly long _cellHeight;
+        public int CellWidth { get; }
+        public int CellHeight { get; }
         private readonly int _cols;
         private readonly int _rows;
-        public Cell[,] _cells;
+        private Cell[,] _cells;
 
-        public Board(int cols, int rows, long canvasWidth, long canvasHeight)
+        public Board(int cols, int rows, int canvasWidth, int canvasHeight)
         {
             _cols = cols;
             _rows = rows;
-            _cellWidth = canvasWidth / _cols;
-            _cellHeight = canvasHeight / _rows;
+            CellWidth = canvasWidth / _cols;
+            CellHeight = canvasHeight / _rows;
 
             InitializeCells();
         }
 
         public async Task DrawAsync(DrawingContext context)
         {
-            await IterateThroughCellsAsync(async (int col, int row) =>
+            //FAST DRAWING - PREVIOUSLY THERE WHERE FIRED "await DrawAsync().." METHODS FOR EACH CELL ONE BY ONE ASYNCHORNOUSLY
+            //AND CELLS APPEARED ON CANVAS VERY SLOWLY, ONE BY ONE (WHOLE GRID RENDERED ABOUT 4 SECONDS)
+            var drawingTasks = new List<Task>();
+            IterateThroughCellsAsync((int col, int row) =>
             {
-                await _cells[col, row].DrawAsync(context);
-                await DrawGridAsync(context, col, row);
+                drawingTasks.Add(_cells[col, row].DrawAsync(context));
+                drawingTasks.Add(DrawGridAsync(context, col, row));
             });
+            await Task.WhenAll(drawingTasks.ToArray());
+        }
+
+        public void SetCellState(int col, int row, CellState state)
+        {
+            _cells[col, row].State = state;
         }
 
         private async Task DrawGridAsync(DrawingContext context, int col, int row)
@@ -36,7 +46,7 @@ namespace Battleships.Models
             await context.Canvas.BeginPathAsync();
             await context.Canvas.SetLineWidthAsync(1f);
             await context.Canvas.SetStrokeStyleAsync("black");
-            await context.Canvas.RectAsync(col * _cellWidth, row * _cellHeight, _cellWidth, _cellHeight);
+            await context.Canvas.RectAsync(col * CellWidth, row * CellHeight, CellWidth, CellHeight);
             await context.Canvas.StrokeAsync();
         }
 
@@ -44,19 +54,19 @@ namespace Battleships.Models
         {
             _cells = new Cell[_cols, _rows];
 
-            IterateThroughCellsAsync(async (int col, int row) =>
+            IterateThroughCellsAsync((int col, int row) =>
             {
-                _cells[col, row] = new Cell(col, row, _cellWidth, _cellHeight);
+                _cells[col, row] = new Cell(col, row, CellWidth, CellHeight);
             });
         }
 
-        private async Task IterateThroughCellsAsync(Func<int, int, Task> action)
+        private void IterateThroughCellsAsync(Action<int, int> action)
         {
             for (var col = 0; col < _cols; col++)
             {
                 for (var row = 0; row < _rows; row++)
                 {
-                    await action(col, row);
+                    action(col, row);
                 }
             }
         }

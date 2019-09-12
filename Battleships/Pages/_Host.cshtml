@@ -21,7 +21,7 @@
     <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
 
     <script>
-        window.getClickCoordinates = (divElement) => {
+        window.getElementCoordinates = (divElement) => {
             var divRect = divElement.getBoundingClientRect();
 
             return divRect.left.toFixed() + "|" + divRect.top.toFixed();

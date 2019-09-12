@@ -12,6 +12,9 @@ Battleships
     
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
+        _playerBoardComponent.AddOnClickListener(async (int col, int row) =>
+        {
+            await _enemyBoardComponent.Test(); //testing abilities of Blazor
+        });
     }
 }
