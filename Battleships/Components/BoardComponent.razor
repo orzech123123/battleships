@@ -16,6 +16,8 @@
 @code {
     public Board Board { get; private set; }
 
+    public bool IsEnabled = true;
+
     private const int Width = 500;
     private const int Height = 500;
     private string WidthStr => $"{Width}px";
@@ -54,6 +56,11 @@
 
     private async Task OnCanvasClickAsync(MouseEventArgs e)
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
         var coordinatesStr = await JsRuntime.InvokeAsync<string>("getElementCoordinates", _divCanvasReference);
         var coordinatesArray = coordinatesStr
             .Split(new[] { '|' })

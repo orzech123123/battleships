@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Battleships.Components;
@@ -16,14 +17,14 @@ namespace Battleships.Mechanics
             _jsRuntime = jsRuntime;
         }
 
-        public async Task<bool> ProcessTurnAsync( //would rather return "out bool gameOver" but async methods doesnt support such params
+        public async Task<(bool Hit, bool GameOver)> ProcessTurnAsync( //would rather return "out bool gameOver" but async methods doesnt support such params
            int col,
            int row,
            BoardComponent oponentBoardComponent,
            ICollection<Ship> oponentShips,
            string gameOverMessage)
         {
-            HitOrMishitShip(col, row, oponentBoardComponent, oponentShips);
+            var hit = HitOrMishitShip(col, row, oponentBoardComponent, oponentShips);
 
             SunkShipsIfDestroyed(oponentBoardComponent, oponentShips);
 
@@ -35,7 +36,7 @@ namespace Battleships.Mechanics
                 await _jsRuntime.InvokeAsync<string>("alert", gameOverMessage);
             }
 
-            return gameOver;
+            return (hit, gameOver);
         }
 
         public static bool ValidateTurn(int col, int row, BoardComponent oponentBoardComponent)
@@ -65,7 +66,7 @@ namespace Battleships.Mechanics
             }
         }
 
-        private static void HitOrMishitShip(int col, int row, BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
+        private static bool HitOrMishitShip(int col, int row, BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
         {
             var hitShip = oponentShips.SingleOrDefault(ship => ship.Collides(col, row));
             if (hitShip != null)
@@ -77,6 +78,8 @@ namespace Battleships.Mechanics
             {
                 oponentBoardComponent.Board.SetCellState(col, row, CellState.Mishit);
             }
+
+            return hitShip != null;
         }
     }
 }

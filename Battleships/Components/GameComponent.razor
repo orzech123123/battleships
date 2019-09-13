@@ -1,4 +1,5 @@
-﻿@using Battleships.Factories
+﻿@using System.Threading
+@using Battleships.Factories
 @using Battleships.Mechanics
 @using Battleships.Models
 
@@ -70,19 +71,26 @@
 
     private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
-        if (!TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent))
+        if (!_enemyBoardComponent.IsEnabled)
         {
             return;
         }
 
-        var won = await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
-        if (won)
+        _enemyBoardComponent.IsEnabled = false;
+
+        var turnIsValid = TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent);
+        async Task<bool> Hit() => await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
+        if (!turnIsValid || (await Hit()))
         {
+            _enemyBoardComponent.IsEnabled = true;
             return;
         }
 
+        Thread.Sleep(700);
         var rnd = new Random(Guid.NewGuid().GetHashCode());
         await ProcessTurnAsync(rnd.Next(0, _playerBoardComponent.Board.Cols), rnd.Next(0, _playerBoardComponent.Board.Rows), _playerBoardComponent, _playerShips, "WASTED!");
+        
+        _enemyBoardComponent.IsEnabled = true;
     }
 
     private async Task<bool> ProcessTurnAsync(
@@ -92,15 +100,14 @@
         ICollection<Ship> oponentShips,
         string gameOverMessage)
     {
-        var gameOver = await TurnProcessor.ProcessTurnAsync(col, row, oponentBoardComponent, oponentShips, gameOverMessage);
+        var (hit, gameOver) = await TurnProcessor.ProcessTurnAsync(col, row, oponentBoardComponent, oponentShips, gameOverMessage);
 
         if (gameOver)
         {
             await RestartGameAsync();
-            return true;
         }
 
-        return false;
+        return hit;
     }
 
     private async Task RestartGameAsync()
