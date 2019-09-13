@@ -1,7 +1,9 @@
 ﻿@using Battleships.Factories
+@using Battleships.Mechanics
 @using Battleships.Models
 
 @inject ShipFactory ShipFactory;
+@inject TurnProcessor TurnProcessor;
 @inject IJSRuntime JsRuntime
 
 <div @onclick="RestartGameAsync">Battleships (click to restart)</div>
@@ -63,69 +65,11 @@
 
     private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
-        await ProcessTurn(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
-    }
+        var gameOver = await TurnProcessor.ProcessTurn(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
 
-    private async Task ProcessTurn(
-        int col,
-        int row,
-        BoardComponent oponentBoardComponent,
-        ICollection<Ship> oponentShips,
-        string gameOverMessage)
-    {
-        if (!ValidateCell(col, row, oponentBoardComponent)) return;
-
-        HitOrMishitShip(col, row, oponentBoardComponent, oponentShips);
-
-        SetShipsSunkStates(oponentBoardComponent, oponentShips);
-
-        await CheckIfGameIsOver(oponentShips, gameOverMessage);
-
-        await oponentBoardComponent.RedrawAsync();
-    }
-
-    private static bool ValidateCell(int col, int row, BoardComponent oponentBoardComponent)
-    {
-        var cellState = oponentBoardComponent.Board.GetCellState(col, row);
-
-        //rules (now only one):
-        return cellState == CellState.Empty;
-    }
-
-    private async Task CheckIfGameIsOver(ICollection<Ship> oponentShips, string gameOverMessage)
-    {
-        if (oponentShips.All(ship => ship.IsDestroyed))
+        if (gameOver)
         {
-            await JsRuntime.InvokeAsync<string>("alert", gameOverMessage);
             await RestartGameAsync();
-        }
-    }
-
-    private static void SetShipsSunkStates(BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
-    {
-        foreach (var oponentShip in oponentShips)
-        {
-            if (oponentShip.IsDestroyed)
-            {
-                foreach (var segment in oponentShip.Segments)
-                {
-                    oponentBoardComponent.Board.SetCellState(segment.X, segment.Y, CellState.Sunk);
-                }
-            }
-        }
-    }
-
-    private static void HitOrMishitShip(int col, int row, BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
-    {
-        var hitShip = oponentShips.SingleOrDefault(ship => ship.Collides(col, row));
-        if (hitShip != null)
-        {
-            hitShip.DamageSegment(col, row);
-            oponentBoardComponent.Board.SetCellState(col, row, CellState.Hit);
-        }
-        else
-        {
-            oponentBoardComponent.Board.SetCellState(col, row, CellState.Mishit);
         }
     }
 

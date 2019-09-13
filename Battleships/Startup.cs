@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Battleships.CellStateStyleProviders;
 using Battleships.Factories;
+using Battleships.Mechanics;
 
 namespace Battleships
 {
@@ -30,6 +31,7 @@ namespace Battleships
             services.AddTransient<ICellStateStyleProvider, MishitCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, SunkCellStyleProvider>();
             services.AddTransient<ShipFactory>();
+            services.AddTransient<TurnProcessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
