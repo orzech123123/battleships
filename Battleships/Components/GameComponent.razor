@@ -5,10 +5,16 @@
 @inject ShipFactory ShipFactory;
 @inject TurnProcessor TurnProcessor;
 
-<div @onclick="RestartGameAsync">Battleships (click to restart)</div>
+<div @onclick="RestartGameAsync">Battleships<br/> (click to restart)</div>
 
-<BoardComponent @ref="_playerBoardComponent" />
-<BoardComponent @ref="_enemyBoardComponent" />
+<div>
+    Player's board
+    <BoardComponent @ref="_playerBoardComponent" />
+</div>
+<div>
+    Enemy's board
+    <BoardComponent @ref="_enemyBoardComponent" />
+</div>
 
 @code
 {
