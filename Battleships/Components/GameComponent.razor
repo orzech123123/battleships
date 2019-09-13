@@ -4,7 +4,6 @@
 
 @inject ShipFactory ShipFactory;
 @inject TurnProcessor TurnProcessor;
-@inject IJSRuntime JsRuntime
 
 <div @onclick="RestartGameAsync">Battleships (click to restart)</div>
 
@@ -65,12 +64,32 @@
 
     private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
-        var gameOver = await TurnProcessor.ProcessTurn(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
+        var won = await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
+        if (won)
+        {
+            return;
+        }
+
+        var rnd = new Random(Guid.NewGuid().GetHashCode());
+        await ProcessTurnAsync(rnd.Next(0, _playerBoardComponent.Board.Cols), rnd.Next(0, _playerBoardComponent.Board.Rows), _playerBoardComponent, _playerShips, "WASTED!");
+    }
+
+    private async Task<bool> ProcessTurnAsync(
+        int col,
+        int row,
+        BoardComponent oponentBoardComponent,
+        ICollection<Ship> oponentShips,
+        string gameOverMessage)
+    {
+        var gameOver = await TurnProcessor.ProcessTurnAsync(col, row, oponentBoardComponent, oponentShips, gameOverMessage);
 
         if (gameOver)
         {
             await RestartGameAsync();
+            return true;
         }
+
+        return false;
     }
 
     private async Task RestartGameAsync()

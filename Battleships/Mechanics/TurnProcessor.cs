@@ -16,7 +16,7 @@ namespace Battleships.Mechanics
             _jsRuntime = jsRuntime;
         }
 
-        public async Task<bool> ProcessTurn( //would rather return "out bool gameOver" but async methods doesnt support such params
+        public async Task<bool> ProcessTurnAsync( //would rather return "out bool gameOver" but async methods doesnt support such params
            int col,
            int row,
            BoardComponent oponentBoardComponent,
@@ -29,7 +29,7 @@ namespace Battleships.Mechanics
 
             SetShipsSunkStates(oponentBoardComponent, oponentShips);
 
-            var gameOver = await CheckIfGameIsOver(oponentShips, gameOverMessage);
+            var gameOver = await CheckIfGameIsOverAsync(oponentShips, gameOverMessage);
 
             await oponentBoardComponent.RedrawAsync();
 
@@ -41,10 +41,10 @@ namespace Battleships.Mechanics
             var cellState = oponentBoardComponent.Board.GetCellState(col, row);
 
             //rules (now only one):
-            return cellState == CellState.Empty;
+            return cellState == CellState.Empty || cellState == CellState.Ship;
         }
 
-        private async Task<bool> CheckIfGameIsOver(ICollection<Ship> oponentShips, string gameOverMessage)
+        private async Task<bool> CheckIfGameIsOverAsync(ICollection<Ship> oponentShips, string gameOverMessage)
         {
             if (oponentShips.All(ship => ship.IsDestroyed))
             {
