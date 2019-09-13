@@ -1,4 +1,4 @@
-Battleships
+Battleships :ship:
 ============
 
 A turn-based strategy game in Blazor
