@@ -63,42 +63,70 @@
 
     private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
-        var cellState = _enemyBoardComponent.Board.GetCellState(col, row);
+        await ProcessTurn(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
+    }
 
-        if (cellState != CellState.Empty)
-        {
-            return;
-        }
+    private async Task ProcessTurn(
+        int col,
+        int row,
+        BoardComponent oponentBoardComponent,
+        ICollection<Ship> oponentShips,
+        string gameOverMessage)
+    {
+        if (!ValidateCell(col, row, oponentBoardComponent)) return;
 
-        var hitShip = _enemyShips.SingleOrDefault(ship => ship.Collides(col, row));
-        if (hitShip != null)
-        {
-            hitShip.DamageSegment(col, row);
-            _enemyBoardComponent.Board.SetCellState(col, row, CellState.Hit);
-        }
-        else
-        {
-            _enemyBoardComponent.Board.SetCellState(col, row, CellState.Mishit);
-        }
+        HitOrMishitShip(col, row, oponentBoardComponent, oponentShips);
 
-        foreach (var enemyShip in _enemyShips)
+        SetShipsSunkStates(oponentBoardComponent, oponentShips);
+
+        await CheckIfGameIsOver(oponentShips, gameOverMessage);
+
+        await oponentBoardComponent.RedrawAsync();
+    }
+
+    private static bool ValidateCell(int col, int row, BoardComponent oponentBoardComponent)
+    {
+        var cellState = oponentBoardComponent.Board.GetCellState(col, row);
+
+        //rules (now only one):
+        return cellState == CellState.Empty;
+    }
+
+    private async Task CheckIfGameIsOver(ICollection<Ship> oponentShips, string gameOverMessage)
+    {
+        if (oponentShips.All(ship => ship.IsDestroyed))
         {
-            if (enemyShip.IsDestroyed)
+            await JsRuntime.InvokeAsync<string>("alert", gameOverMessage);
+            await RestartGameAsync();
+        }
+    }
+
+    private static void SetShipsSunkStates(BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
+    {
+        foreach (var oponentShip in oponentShips)
+        {
+            if (oponentShip.IsDestroyed)
             {
-                foreach (var segment in enemyShip.Segments)
+                foreach (var segment in oponentShip.Segments)
                 {
-                    _enemyBoardComponent.Board.SetCellState(segment.X, segment.Y, CellState.Sunk);
+                    oponentBoardComponent.Board.SetCellState(segment.X, segment.Y, CellState.Sunk);
                 }
             }
         }
+    }
 
-        if (_enemyShips.All(ship => ship.IsDestroyed))
+    private static void HitOrMishitShip(int col, int row, BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
+    {
+        var hitShip = oponentShips.SingleOrDefault(ship => ship.Collides(col, row));
+        if (hitShip != null)
         {
-            await JsRuntime.InvokeAsync<string>("alert", "You won! Congratulations!");
-            await RestartGameAsync();
+            hitShip.DamageSegment(col, row);
+            oponentBoardComponent.Board.SetCellState(col, row, CellState.Hit);
         }
-
-        await _enemyBoardComponent.RedrawAsync();
+        else
+        {
+            oponentBoardComponent.Board.SetCellState(col, row, CellState.Mishit);
+        }
     }
 
     private async Task RestartGameAsync()
