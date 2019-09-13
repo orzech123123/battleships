@@ -2,7 +2,7 @@
 {
     public enum CellState
     {
-        Empty,
+        Sea,
         Mishit,
         Hit,
         Sunk,

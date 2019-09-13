@@ -6,6 +6,6 @@ namespace Battleships.CellStateStyleProviders
     {
         public CellState State => CellState.Ship;
 
-        public string Style => "green";
+        public string Style => "#b8d432";
     }
 }

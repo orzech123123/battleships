@@ -25,7 +25,7 @@ namespace Battleships
             services.AddRazorPages();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
 
-            services.AddTransient<ICellStateStyleProvider, EmptyCellStyleProvider>();
+            services.AddTransient<ICellStateStyleProvider, SeaCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, ShipCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, HitCellStyleProvider>();
             services.AddTransient<ICellStateStyleProvider, MishitCellStyleProvider>();

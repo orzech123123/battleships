@@ -6,6 +6,6 @@ namespace Battleships.CellStateStyleProviders
     {
         public CellState State => CellState.Mishit;
 
-        public string Style => "black";
+        public string Style => "#69a7c7";
     }
 }

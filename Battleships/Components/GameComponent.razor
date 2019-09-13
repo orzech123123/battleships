@@ -33,13 +33,13 @@
         _playerBoardComponent.Board.Clear();
         _enemyBoardComponent.Board.Clear();
 
-        RandomizeShips(_playerShips, _playerBoardComponent.Board);
-        RandomizeShips(_enemyShips, _enemyBoardComponent.Board);
+        BuildShips(_playerShips, _playerBoardComponent.Board);
+        BuildShips(_enemyShips, _enemyBoardComponent.Board);
 
-        SetCellStatesOnPlayersBoard();
+        PlaceShipsOnBoard();
     }
 
-    private void SetCellStatesOnPlayersBoard()
+    private void PlaceShipsOnBoard()
     {
         foreach (var playerShip in _playerShips)
         {
@@ -50,7 +50,7 @@
         }
     }
 
-    private void RandomizeShips(ICollection<Ship> ships, Board board)
+    private void BuildShips(ICollection<Ship> ships, Board board)
     {
         ships.Clear();
 
@@ -64,6 +64,11 @@
 
     private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
+        if (!TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent))
+        {
+            return;
+        }
+
         var won = await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
         if (won)
         {

@@ -23,40 +23,35 @@ namespace Battleships.Mechanics
            ICollection<Ship> oponentShips,
            string gameOverMessage)
         {
-            if (!ValidateCell(col, row, oponentBoardComponent)) return false;
-
             HitOrMishitShip(col, row, oponentBoardComponent, oponentShips);
 
-            SetShipsSunkStates(oponentBoardComponent, oponentShips);
-
-            var gameOver = await CheckIfGameIsOverAsync(oponentShips, gameOverMessage);
+            SunkShipsIfDestroyed(oponentBoardComponent, oponentShips);
 
             await oponentBoardComponent.RedrawAsync();
+
+            var gameOver = CheckIfGameIsOverAsync(oponentShips);
+            if (gameOver)
+            {
+                await _jsRuntime.InvokeAsync<string>("alert", gameOverMessage);
+            }
 
             return gameOver;
         }
 
-        private static bool ValidateCell(int col, int row, BoardComponent oponentBoardComponent)
+        public static bool ValidateTurn(int col, int row, BoardComponent oponentBoardComponent)
         {
             var cellState = oponentBoardComponent.Board.GetCellState(col, row);
 
             //rules (now only one):
-            return cellState == CellState.Empty || cellState == CellState.Ship;
+            return cellState == CellState.Sea || cellState == CellState.Ship;
         }
 
-        private async Task<bool> CheckIfGameIsOverAsync(ICollection<Ship> oponentShips, string gameOverMessage)
+        private static bool CheckIfGameIsOverAsync(ICollection<Ship> oponentShips)
         {
-            if (oponentShips.All(ship => ship.IsDestroyed))
-            {
-                await _jsRuntime.InvokeAsync<string>("alert", gameOverMessage);
-
-                return true;
-            }
-
-            return false;
+            return oponentShips.All(ship => ship.IsDestroyed);
         }
 
-        private static void SetShipsSunkStates(BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
+        private static void SunkShipsIfDestroyed(BoardComponent oponentBoardComponent, ICollection<Ship> oponentShips)
         {
             foreach (var oponentShip in oponentShips)
             {

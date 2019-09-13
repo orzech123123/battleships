@@ -9,14 +9,14 @@ namespace Battleships.Factories
     {
         private readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
 
-        public Ship CreateRandomShip(int tmpSegments, ICollection<Ship> existingShips, int boardCols, int boardRows)
+        public Ship CreateRandomShip(int segments, ICollection<Ship> existingShips, int boardCols, int boardRows)
         {
-            var newShip = CreateRandomShip(tmpSegments, boardCols, boardRows);
+            var newShip = CreateRandomShip(segments, boardCols, boardRows);
 
             //brute-force generating ship not colliding with any of existing ones
             if (existingShips.Any(existingShip => existingShip.Collides(newShip)))
             {
-                return CreateRandomShip(tmpSegments, existingShips, boardCols, boardRows);
+                return CreateRandomShip(segments, existingShips, boardCols, boardRows);
             }
 
             return newShip;

@@ -21,7 +21,7 @@ namespace Battleships.Models
             _height = height;
         }
 
-        public CellState State { get; set; } = CellState.Empty;
+        public CellState State { get; set; } = CellState.Sea;
 
         public async Task DrawAsync(DrawingContext context)
         {
