@@ -29,7 +29,7 @@ namespace Battleships.Mechanics
 
             await oponentBoardComponent.RedrawAsync();
 
-            var gameOver = CheckIfGameIsOverAsync(oponentShips);
+            var gameOver = CheckIfGameIsOver(oponentShips);
             if (gameOver)
             {
                 await _jsRuntime.InvokeAsync<string>("alert", gameOverMessage);
@@ -46,7 +46,7 @@ namespace Battleships.Mechanics
             return cellState == CellState.Sea || cellState == CellState.Ship;
         }
 
-        private static bool CheckIfGameIsOverAsync(ICollection<Ship> oponentShips)
+        private static bool CheckIfGameIsOver(ICollection<Ship> oponentShips)
         {
             return oponentShips.All(ship => ship.IsDestroyed);
         }
