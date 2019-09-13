@@ -1,7 +1,8 @@
 Battleships :ship:
 ============
 
-A turn-based strategy game in Blazor
+A turn-based strategy game in Blazor (gameplay video below)
+[![Battleships](https://lh3.googleusercontent.com/ejhDF_Y26CXM4VaixsRHcBC64NonkX098ymRYidMP5R2ARzTH6RXAQ5EumTkdiDfRbbpTbsuuZI=w320)](https://drive.google.com/file/d/1H0r7T2eIQO57oxkEuqMXb-QcRbbtvghH/view)
 
 ## Get Started
 
