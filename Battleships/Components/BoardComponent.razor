@@ -14,17 +14,27 @@
 </div>
 
 @code {
-    public Board Board { get; private set; }
+    public Board Board { get; private set; } //TODO encapsulate it somehow in future
 
-    private bool _isEnabled = true;
+    public bool IsEnabled { get; private set; } = true;
 
-    public bool IsEnabled
+    public void Enable(bool withSwitchOpacity = true)
     {
-        get => _isEnabled;
-        set
+        IsEnabled = true;
+
+        if (withSwitchOpacity)
         {
-            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, value);
-            _isEnabled = value;
+            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, IsEnabled);
+        }
+    }
+
+    public void Disable(bool withSwitchOpacity = true)
+    {
+        IsEnabled = false;
+
+        if (withSwitchOpacity)
+        {
+            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, IsEnabled);
         }
     }
 
