@@ -80,19 +80,14 @@
         {
             return;
         }
-
         _enemyBoardComponent.Disable(false);
 
-        //process Player
-        var turnIsValid = TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent);
-        async Task<bool> Hit() => await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
-        if (!turnIsValid || await Hit())
-        {
-            _enemyBoardComponent.Enable();
-            return;
-        }
+        if (await ProcessPlayer(col, row)) return;
+        await ProcessEnemy();
+    }
 
-        //process Enemy
+    private async Task ProcessEnemy()
+    {
         _enemyBoardComponent.Disable();
         _playerBoardComponent.Enable();
 
@@ -102,6 +97,21 @@
 
         _playerBoardComponent.Disable();
         _enemyBoardComponent.Enable();
+    }
+
+    private async Task<bool> ProcessPlayer(int col, int row)
+    {
+        var turnIsValid = TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent);
+
+        async Task<bool> Hit() => await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
+
+        if (!turnIsValid || await Hit())
+        {
+            _enemyBoardComponent.Enable();
+            return true;
+        }
+
+        return false;
     }
 
     private async Task<bool> ProcessTurnAsync(

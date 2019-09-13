@@ -7,6 +7,8 @@ namespace Battleships.Models
 {
     public class Board : IDrawable
     {
+        private const string GridStyle = "black";
+
         public int CellWidth { get; }
         public int CellHeight { get; }
         public int Cols { get; }
@@ -61,7 +63,7 @@ namespace Battleships.Models
         {
             await context.Canvas.BeginPathAsync();
             await context.Canvas.SetLineWidthAsync(1f);
-            await context.Canvas.SetStrokeStyleAsync("black");
+            await context.Canvas.SetStrokeStyleAsync(GridStyle);
             await context.Canvas.RectAsync(col * CellWidth, row * CellHeight, CellWidth, CellHeight);
             await context.Canvas.StrokeAsync();
         }
