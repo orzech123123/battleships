@@ -2,8 +2,9 @@
 @using Battleships.Models
 
 @inject ShipFactory ShipFactory;
+@inject IJSRuntime JsRuntime
 
-Battleships
+<div @onclick="RestartGameAsync">Battleships (click to restart)</div>
 
 <BoardComponent @ref="_playerBoardComponent" />
 <BoardComponent @ref="_enemyBoardComponent" />
@@ -22,7 +23,7 @@ Battleships
         {
             InitializeGame();
 
-            _enemyBoardComponent.AddOnClickListener(ProcessOnEnemyBoardClick);
+            _enemyBoardComponent.AddOnClickListener(ProcessOnEnemyBoardClickAsync);
         }
     }
 
@@ -34,6 +35,11 @@ Battleships
         RandomizeShips(_playerShips, _playerBoardComponent.Board);
         RandomizeShips(_enemyShips, _enemyBoardComponent.Board);
 
+        SetCellStatesOnPlayersBoard();
+    }
+
+    private void SetCellStatesOnPlayersBoard()
+    {
         foreach (var playerShip in _playerShips)
         {
             foreach (var playerShipSegment in playerShip.Segments)
@@ -55,7 +61,7 @@ Battleships
         ships.Add(destroyer2);
     }
 
-    private async Task ProcessOnEnemyBoardClick(int col, int row)
+    private async Task ProcessOnEnemyBoardClickAsync(int col, int row)
     {
         var cellState = _enemyBoardComponent.Board.GetCellState(col, row);
 
@@ -64,9 +70,42 @@ Battleships
             return;
         }
 
-        //TESTING...
-        _enemyBoardComponent.Board.SetCellState(3, 3, CellState.Sunk);
+        var hitShip = _enemyShips.SingleOrDefault(ship => ship.Collides(col, row));
+        if (hitShip != null)
+        {
+            hitShip.DamageSegment(col, row);
+            _enemyBoardComponent.Board.SetCellState(col, row, CellState.Hit);
+        }
+        else
+        {
+            _enemyBoardComponent.Board.SetCellState(col, row, CellState.Mishit);
+        }
+
+        foreach (var enemyShip in _enemyShips)
+        {
+            if (enemyShip.IsDestroyed)
+            {
+                foreach (var segment in enemyShip.Segments)
+                {
+                    _enemyBoardComponent.Board.SetCellState(segment.X, segment.Y, CellState.Sunk);
+                }
+            }
+        }
+
+        if (_enemyShips.All(ship => ship.IsDestroyed))
+        {
+            await JsRuntime.InvokeAsync<string>("alert", "You won! Congratulations!");
+            await RestartGameAsync();
+        }
+
         await _enemyBoardComponent.RedrawAsync();
-        //TODO gameplay processing
+    }
+
+    private async Task RestartGameAsync()
+    {
+        InitializeGame();
+
+        await _playerBoardComponent.RedrawAsync();
+        await _enemyBoardComponent.RedrawAsync();
     }
 }

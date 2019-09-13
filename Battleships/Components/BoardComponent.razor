@@ -10,7 +10,7 @@
 @inject IJSRuntime JsRuntime
 @inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
 
-<div style="width:@WidthStr; height:@HeightStr; margin: 10px" @onclick="OnCanvasClick" @ref="_divCanvasReference">
+<div style="width:@WidthStr; height:@HeightStr; margin: 10px" @onclick="OnCanvasClickAsync" @ref="_divCanvasReference">
     <BECanvas Width="Width" Height="Height" @ref="_canvasReference"></BECanvas>
 </div>
 
@@ -53,7 +53,7 @@
         _listeners.Add(listener);
     }
 
-    private async Task OnCanvasClick(MouseEventArgs e)
+    private async Task OnCanvasClickAsync(MouseEventArgs e)
     {
         var coordinatesStr = await JsRuntime.InvokeAsync<string>("getElementCoordinates", _divCanvasReference);
         var coordinatesArray = coordinatesStr
