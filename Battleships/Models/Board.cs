@@ -51,6 +51,12 @@ namespace Battleships.Models
             return _cells[col, row].State;
         }
 
+        public bool IsValidCell(int col, int row)
+        {
+            return col < _cells.GetLength(0) && col >= 0 &&
+                   row < _cells.GetLength(1) && row >= 0;
+        }
+
         private async Task DrawGridAsync(DrawingContext context, int col, int row)
         {
             await context.Canvas.BeginPathAsync();

@@ -61,6 +61,29 @@ namespace Battleships.Mechanics
                     foreach (var segment in oponentShip.Segments)
                     {
                         oponentBoardComponent.Board.SetCellState(segment.X, segment.Y, CellState.Sunk);
+                        DiscoverSurroundingCells(segment, oponentBoardComponent);
+                    }
+                }
+            }
+        }
+
+        private static void DiscoverSurroundingCells(
+            (int X, int Y, bool IsHit) segment,
+            BoardComponent oponentBoardComponent)
+        {
+            for (var xAxis = -1; xAxis <= 1; xAxis++)
+            {
+                for (var yAxis = -1; yAxis <= 1; yAxis++)
+                {
+                    if(xAxis == 0 && yAxis == 0) continue;
+
+                    var cellX = segment.X + xAxis;
+                    var cellY = segment.Y + yAxis;
+
+                    if (oponentBoardComponent.Board.IsValidCell(cellX, cellY) &&
+                        oponentBoardComponent.Board.GetCellState(cellX, cellY) == CellState.Sea)
+                    {
+                        oponentBoardComponent.Board.SetCellState(cellX, cellY, CellState.Mishit);
                     }
                 }
             }
