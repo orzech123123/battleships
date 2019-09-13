@@ -5,6 +5,7 @@
 
 @inject ShipFactory ShipFactory;
 @inject TurnProcessor TurnProcessor;
+@inject EnemyAi EnemyAi;
 
 <div @onclick="RestartGameAsync">Battleships<br/> (click to restart)</div>
 
@@ -19,8 +20,6 @@
 
 @code
 {
-    private readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
-
     private BoardComponent _enemyBoardComponent;
     private BoardComponent _playerBoardComponent;
 
@@ -90,11 +89,12 @@
     {
         _enemyBoardComponent.Disable();
         _playerBoardComponent.Enable();
-
         Thread.Sleep(700);
-        await ProcessTurnAsync(_rnd.Next(0, _playerBoardComponent.Board.Cols), _rnd.Next(0, _playerBoardComponent.Board.Rows), _playerBoardComponent, _playerShips, "WASTED!");
-        Thread.Sleep(200);
 
+        var (col, row) = EnemyAi.GetNextBestShot(_playerBoardComponent);
+        await ProcessTurnAsync(col, row, _playerBoardComponent, _playerShips, "WASTED!");
+
+        Thread.Sleep(200);
         _playerBoardComponent.Disable();
         _enemyBoardComponent.Enable();
     }
