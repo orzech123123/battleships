@@ -23,7 +23,7 @@
         get => _isEnabled;
         set
         {
-            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, value).GetAwaiter();
+            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, value);
             _isEnabled = value;
         }
     }
