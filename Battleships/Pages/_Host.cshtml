@@ -24,6 +24,7 @@
         window.getElementCoordinates = (divElement) => {
             var divRect = divElement.getBoundingClientRect();
 
+            //in no way I could manage to return complex type here to C# code
             return divRect.left.toFixed() + "|" + divRect.top.toFixed();
         };
         window.switchOpacity = (divElement, enable) => {
