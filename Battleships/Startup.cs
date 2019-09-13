@@ -32,7 +32,7 @@ namespace Battleships
             services.AddTransient<ICellStateStyleProvider, SunkCellStyleProvider>();
             services.AddTransient<ShipFactory>();
             services.AddTransient<TurnProcessor>();
-            services.AddSingleton<EnemyAi>();
+            services.AddTransient<IEnemyAi, EnemyAi>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

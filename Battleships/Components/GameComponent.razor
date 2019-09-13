@@ -5,7 +5,7 @@
 
 @inject ShipFactory ShipFactory;
 @inject TurnProcessor TurnProcessor;
-@inject EnemyAi EnemyAi;
+@inject IEnemyAi EnemyAi;
 
 <div @onclick="RestartGameAsync">Battleships<br/> (click to restart)</div>
 
@@ -91,8 +91,13 @@
         _playerBoardComponent.Enable();
         Thread.Sleep(700);
 
-        var (col, row) = EnemyAi.GetNextBestShot(_playerBoardComponent);
-        await ProcessTurnAsync(col, row, _playerBoardComponent, _playerShips, "WASTED!");
+        var (col, row) = EnemyAi.GetNextBestShot(_playerBoardComponent, _playerShips);
+        var hit = await ProcessTurnAsync(col, row, _playerBoardComponent, _playerShips, "WASTED!");
+
+        if (hit)
+        {
+            await ProcessEnemy();
+        }
 
         Thread.Sleep(200);
         _playerBoardComponent.Disable();

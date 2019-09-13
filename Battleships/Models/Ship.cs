@@ -13,6 +13,7 @@ namespace Battleships.Models
         }
 
         public bool IsDestroyed => Segments.All(seg => seg.IsHit);
+        public bool IsDamaged => Segments.Any(seg => seg.IsHit);
 
         public void DamageSegment(int x, int y)
         {
