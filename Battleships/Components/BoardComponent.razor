@@ -9,14 +9,24 @@
 @inject IJSRuntime JsRuntime
 @inject IEnumerable<ICellStateStyleProvider> CellStateStyleProviders
 
-<div style="width:@WidthStr; height:@HeightStr; margin: 10px" @onclick="OnCanvasClickAsync" @ref="_divCanvasReference">
+<div style="width:@WidthStr; height:@HeightStr; margin: 10px; @*opacity:@(IsEnabled ? "1" : "0.5") IS NOT WORKING*@" @onclick="OnCanvasClickAsync" @ref="_divCanvasReference">
     <BECanvas Width="Width" Height="Height" @ref="_canvasReference"></BECanvas>
 </div>
 
 @code {
     public Board Board { get; private set; }
 
-    public bool IsEnabled = true;
+    private bool _isEnabled = true;
+
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        set
+        {
+            JsRuntime.InvokeAsync<object>("switchOpacity", _divCanvasReference, value).GetAwaiter();
+            _isEnabled = value;
+        }
+    }
 
     private const int Width = 500;
     private const int Height = 500;

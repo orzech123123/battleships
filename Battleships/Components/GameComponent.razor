@@ -19,6 +19,8 @@
 
 @code
 {
+    private readonly Random _rnd = new Random(Guid.NewGuid().GetHashCode());
+
     private BoardComponent _enemyBoardComponent;
     private BoardComponent _playerBoardComponent;
 
@@ -44,6 +46,9 @@
         BuildShips(_enemyShips, _enemyBoardComponent.Board);
 
         PlaceShipsOnBoard();
+
+        _enemyBoardComponent.IsEnabled = true;
+        _playerBoardComponent.IsEnabled = false;
     }
 
     private void PlaceShipsOnBoard()
@@ -78,6 +83,7 @@
 
         _enemyBoardComponent.IsEnabled = false;
 
+        //process Player
         var turnIsValid = TurnProcessor.ValidateTurn(col, row, _enemyBoardComponent);
         async Task<bool> Hit() => await ProcessTurnAsync(col, row, _enemyBoardComponent, _enemyShips, "You won! Congratulations!");
         if (!turnIsValid || (await Hit()))
@@ -86,10 +92,13 @@
             return;
         }
 
+        //process Enemy
+        _playerBoardComponent.IsEnabled = true;
         Thread.Sleep(700);
-        var rnd = new Random(Guid.NewGuid().GetHashCode());
-        await ProcessTurnAsync(rnd.Next(0, _playerBoardComponent.Board.Cols), rnd.Next(0, _playerBoardComponent.Board.Rows), _playerBoardComponent, _playerShips, "WASTED!");
-        
+        await ProcessTurnAsync(_rnd.Next(0, _playerBoardComponent.Board.Cols), _rnd.Next(0, _playerBoardComponent.Board.Rows), _playerBoardComponent, _playerShips, "WASTED!");
+        Thread.Sleep(200);
+
+        _playerBoardComponent.IsEnabled = false;
         _enemyBoardComponent.IsEnabled = true;
     }
 

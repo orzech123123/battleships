@@ -26,6 +26,10 @@
 
             return divRect.left.toFixed() + "|" + divRect.top.toFixed();
         };
+        window.switchOpacity = (divElement, enable) => {
+            var level = 0.5;
+            divElement.style.opacity = enable ? 1.0 : level;
+        };
     </script>
 </body>
 </html>
