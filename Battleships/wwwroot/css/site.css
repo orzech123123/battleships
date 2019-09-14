@@ -111,6 +111,20 @@ app {
     color: red;
 }
 
+/*---------------------------------*/
+html { 
+    background: url(https://i.pinimg.com/originals/ee/03/ec/ee03ec96ac4e47aca39477e7427ddf09.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+body {
+    background-color: transparent;
+}
+/*---------------------------------*/
+
 @media (max-width: 767.98px) {
     .main .top-row {
         display: none;
