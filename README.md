@@ -3,7 +3,7 @@ Battleships :ship:
 
 A turn-based strategy game in Blazor
 
-[DEMO](https://battleshipsblazor.azurewebsites.net/)
+[DEMO](http://test-orzech.azurewebsites.net/)
 
 ## Get Started
 
